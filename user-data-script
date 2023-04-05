@@ -1,0 +1,28 @@
+# Скрипт для установки code-server. Для простоты примера мы использовали root, но это небезопасный способ. 
+# Также обратите внимание на комментарии: перед запуском нужно заполнить параметры входа.
+
+
+#!/bin/bash
+
+export HOME=/root
+export SHELL=/bin/bash
+
+mkdir -p /root/.config/code-server/
+curl -fsSL https://code-server.dev/install.sh | sh
+cat > /root/.config/code-server/config.yaml << EOF
+
+bind-addr: 0.0.0.0:8080
+auth: password
+password: secret
+cert: false
+EOF
+
+mkdir -p /etc/systemd/system/code-server\@root.service.d
+cat > /etc/systemd/system/code-server\@root.service.d/override.conf << EOF
+[Service]
+Environment="SHELL=/bin/bash"
+EOF
+
+systemctl daemon-reload
+systemctl enable code-server@root
+systemctl start code-server@root
